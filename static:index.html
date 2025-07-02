@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pitch Deck Summarizer</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    #summary { white-space: pre-wrap; margin-top: 2em; border: 1px solid #ccc; padding: 1em; }
+    #loading { display: none; color: blue; }
+  </style>
+</head>
+<body>
+  <h1>Upload Your Pitch Deck</h1>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" accept=".pdf" required />
+    <button type="submit">Summarize</button>
+  </form>
+  <div id="loading">Summarizing… Please wait.</div>
+  <div id="summary"></div>
+  <script>
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('summary').textContent = '';
+      const file = document.getElementById('fileInput').files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/summarize-pdf/', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById('loading').style.display = 'none';
+      if (data.summary) {
+        document.getElementById('summary').textContent = data.summary;
+      } else {
+        document.getElementById('summary').textContent = 'Error: ' + JSON.stringify(data);
+      }
+    };
+  </script>
+</body>
+</html>
